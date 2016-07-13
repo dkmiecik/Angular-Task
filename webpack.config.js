@@ -1,56 +1,88 @@
 const path = require('path');
 const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-var BUILD_DIR = path.resolve(__dirname, 'public');
-var APP_DIR = path.resolve(__dirname, 'src');
+const NODE_ENV = process.env.NODE_ENV;
+
+const HOST = process.env.HOST || 'localhost';
+const PORT = process.env.PORT || 3000;
+
 
 var config = {
-    devtool: 'cheap-module-eval-source-map',
-    entry: [
-        'webpack-dev-server/client?http://localhost:3000',
-        'webpack/hot/only-dev-server',
-        './src/app/index'
-    ],
+    devtool: 'cheap-module-source-map',
+    entry: {
+        main: ['./src/main'],
+        vendor: './src/vendor'
+    },
     output: {
-        path: BUILD_DIR,
-        filename: 'bundle.js'
+        filename: '[name].js',
+        path: path.resolve('./target'),
+        publicPath: '/'
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'vendor',
+            minChunks: Infinity
+        }),
+        new ExtractTextPlugin('style.css', {allChunks: true}),
         new HtmlWebpackPlugin({
-            title: 'Angular Test Task',
-            template: 'src/index.html',
-            minify: {
-                collapseWhitespace: true,
-                removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true
-            }
-        })
+            template: path.join(__dirname, './index.template.html'),
+            filename: 'index.html',
+            hash: true,
+            inject: 'body'
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ],
     module: {
         loaders: [
-            { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/, include: APP_DIR },
-            { test: /\.css$/, loader: 'style-loader!css-loader' },
-            { test: /\.scss$/, loaders: ['style', 'css?sourceMap', 'sass?sourceMap']},
-            { test: /\.html$/, loader: 'raw' },
-            { test: /\.jade$/, loader: 'jade-loader' },
-            // inline base64 URLs for <=8k images, direct URLs for the rest
-            { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192'},
-            // helps to load bootstrap's css.
-            { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url?limit=10000&minetype=application/font-woff' },
-            { test: /\.woff2$/,
-                loader: 'url?limit=10000&minetype=application/font-woff' },
-            { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url?limit=10000&minetype=application/octet-stream' },
-            { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'file' },
-            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-                loader: 'url?limit=10000&minetype=image/svg+xml' }
+            {test: /\.js$/, loader: 'babel', exclude: /node_modules/},
+            {test: /\.html$/, loader: 'raw'},
+            {test: /\.scss$/, loader: 'style!css!postcss!sass'}
         ]
+    },
+    resolve: {
+        extensions: ['', '.ts', '.js'],
+        modulesDirectories: ['node_modules'],
+        root: path.resolve('.')
+    },
+    postcss: [
+        autoprefixer({browsers: ['last 3 versions']})
+    ],
+    sassLoader: {
+       outputStyle: 'compressed',
+        precision: 10,
+        sourceComments: false
+    }
+};
+
+config.entry.main.unshift(`webpack-dev-server/client?http://${HOST}:${PORT}`);
+
+config.devServer = {
+    contentBase: './src',
+    historyApiFallback: true,
+    host: HOST,
+    port: PORT,
+    publicPath: config.output.publicPath,
+    stats: {
+        cached: true,
+        cachedAssets: true,
+        chunks: true,
+        chunkModules: false,
+        colors: true,
+        hash: false,
+        reasons: true,
+        timings: true,
+        version: false
     }
 };
 
 module.exports = config;
+
+
+
+

@@ -1,0 +1,7 @@
+<div class="menu">
+    <ul class="repoMenu">
+        <li class="info" key="info"><a class="active" href="/">INFO</a></li>
+        <li ng-repeat="listItem in app.listItems"><a ng-href="#/repo/:{{listItem.repo}}">{{listItem.name.toString().toUpperCase()}}</a></li>
+    </ul>
+</div>
+<main class="main" ui-view="main"></main>

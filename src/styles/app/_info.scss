@@ -1,0 +1,31 @@
+.infoContent {
+  height: auto;
+  margin-top: 50px;
+
+  h1 {
+    margin: auto;
+  }
+
+  ul {
+    list-style-type: none;
+  }
+
+    li:before {
+      position: absolute;
+      margin-left: -1.3em;
+      font-weight: bold;
+    }
+    li.passed:before {
+      content: "\2713";
+      color: darkgreen;
+    }
+    li.failed:before {
+      content: "\2717";
+      color: crimson;
+    }
+    li.failed a {
+      color: crimson;
+      cursor: pointer;
+      font-weight: bold;
+    }
+}

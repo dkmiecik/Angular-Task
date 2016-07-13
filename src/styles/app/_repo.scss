@@ -1,0 +1,16 @@
+.repoContent {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 20px;
+  font-weight: bold;
+
+  .success {
+    color: darkgreen;
+  }
+  .pending {
+    color: orange;
+  }
+  .failure {
+    color: darkred;
+  }
+}
